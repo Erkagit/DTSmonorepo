@@ -6,6 +6,7 @@ frontend/node_modules
 frontend/.next
 # backend
 backend/node_modules
+backend/dist
 # logs
 npm-debug.log*
 yarn-debug.log*

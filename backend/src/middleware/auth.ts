@@ -78,3 +78,9 @@ export function requireCompanyAccess(req: Request, res: Response, next: NextFunc
   
   next();
 }
+
+// Simple middleware that skips authentication for development
+export function authMiddleware(req: Request, res: Response, next: NextFunction) {
+  // Skip auth for now - in production, use authenticate()
+  next();
+}
