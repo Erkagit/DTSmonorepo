@@ -6,6 +6,8 @@ import { userRouter } from './routes/user';
 import { deviceRouter } from './routes/device';
 import { vehicleRouter } from './routes/vehicle';
 import { orderRouter } from './routes/order';
+import { deliveryRouter } from './routes/delivery';
+import telemetryRouter from './modules/telemetry/telemetry.routes';
 
 const app = express();
 
@@ -19,9 +21,7 @@ app.use('/api/users', userRouter);
 app.use('/api/devices', deviceRouter);
 app.use('/api/vehicles', vehicleRouter);
 app.use('/api/orders', orderRouter);
-
-app.listen(3000, () => {
-    console.log("Server is running on port 3000");
-});
+app.use('/api/deliveries', deliveryRouter);
+app.use('/api/telemetry', telemetryRouter);
 
 export default app;
