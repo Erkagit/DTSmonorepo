@@ -51,18 +51,18 @@ model User {
 }
 
 model Device {
-  id        Int      @id @default(autoincrement())
-  deviceId  String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  vehicle   Vehicle?
+  id        Int       @id @default(autoincrement())
+  deviceId  String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  vehicles  Vehicle[]
 }
 
 model Vehicle {
   id        Int            @id @default(autoincrement())
   name      String
   plateNo   String?        @unique
-  deviceId  Int?           @unique
+  deviceId  Int?
   device    Device?        @relation(fields: [deviceId], references: [id])
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
