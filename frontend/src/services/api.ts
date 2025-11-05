@@ -37,6 +37,19 @@ api.interceptors.response.use(
   }
 );
 
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;  // ✅ Authorization header нэмэх
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 // API Methods
 export const authApi = {
   login: (email: string, password: string) => api.post<{

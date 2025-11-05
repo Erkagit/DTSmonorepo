@@ -5,7 +5,7 @@ import type { User } from '@/types/types';
 
 interface AuthContextType {
   user: User | null;
-  login: (user: User) => void;
+  login: (user: User, token: string) => void;
   logout: () => void;
   isLoading: boolean;
 }
@@ -33,21 +33,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = (user: User) => {
-    setUser(user);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('userId', user.id.toString());
-    }
-  };
 
-  const logout = () => {
-    setUser(null);
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('user');
-      localStorage.removeItem('userId');
-    }
-  };
+  const login = (user: User, token: string) => {  // token параметр нэмэх
+  setUser(user);
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('userId', user.id.toString());
+    localStorage.setItem('token', token);  // ✅ token хадгалах
+  }
+};
+
+const logout = () => {
+  setUser(null);
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('user');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('token');  // ✅ token устгах
+  }
+};
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isLoading }}>

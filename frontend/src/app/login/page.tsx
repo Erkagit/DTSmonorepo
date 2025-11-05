@@ -28,11 +28,11 @@ export default function LoginPage() {
 
     try {
       console.log('Attempting login with email:', email);
-      const response = await authApi.login(email, password);
-      console.log('Login response:', response.data);
-      
-      // Save user and token
-      login(response.data.user);
+const response = await authApi.login(email, password);
+console.log('Login response:', response.data);
+
+// Save user and token
+login(response.data.user, response.data.token);  // ✅ token дамжуулах
       
       // Redirect to dashboard
       router.push('/dashboard');
