@@ -7,7 +7,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ordersApi, vehiclesApi, companiesApi } from '@/services/api';
 import { Truck, Package, Plus, ArrowLeft, MapPin, User, Calendar, X } from 'lucide-react';
 import Link from 'next/link';
-import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, type OrderStatus } from '@/types';
+import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, type OrderStatus } from '@/types/types';
 import { useAuth } from '@/context/AuthProvider';
 
 export default function OrdersPage() {
