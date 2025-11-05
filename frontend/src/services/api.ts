@@ -1,6 +1,9 @@
 import axios from 'axios';
+import type { User, Company, Vehicle, Order, LocationPing } from '@/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050';
+
+console.log('API Base URL:', API_BASE_URL); // Debug log
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -11,72 +14,32 @@ const api = axios.create({
 
 // Auth interceptor
 api.interceptors.request.use((config) => {
-  const userId = localStorage.getItem('userId');
-  if (userId) {
-    config.headers['x-user-id'] = userId;
+  console.log('API Request:', config.method?.toUpperCase(), config.url); // Debug log
+  
+  if (typeof window !== 'undefined') {
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      config.headers['x-user-id'] = userId;
+    }
   }
   return config;
 });
 
-// Types
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  role: 'ADMIN' | 'OPERATOR' | 'CLIENT_ADMIN';
-  companyId: number | null;
-  company?: Company;
-}
-
-export interface Company {
-  id: number;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Vehicle {
-  id: number;
-  name: string;
-  plateNo: string;
-  deviceId: number;
-  device?: {
-    id: number;
-    deviceId: string;
-  };
-}
-
-export interface Order {
-  id: number;
-  code: string;
-  companyId: number;
-  origin: string;
-  destination: string;
-  vehicleId: number | null;
-  status: 'PENDING' | 'ASSIGNED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
-  createdById: number;
-  assignedToId: number | null;
-  createdAt: string;
-  updatedAt: string;
-  company?: Company;
-  vehicle?: Vehicle;
-  createdBy?: User;
-  assignedTo?: User;
-}
-
-export interface LocationPing {
-  id: number;
-  vehicleId: number;
-  lat: number;
-  lng: number;
-  speedKph?: number;
-  heading?: number;
-  at: string;
-}
+// Response interceptor for debugging
+api.interceptors.response.use(
+  (response) => {
+    console.log('API Response:', response.status, response.config.url); // Debug log
+    return response;
+  },
+  (error) => {
+    console.error('API Error:', error.message, error.config?.url); // Debug log
+    return Promise.reject(error);
+  }
+);
 
 // API Methods
 export const authApi = {
-  login: (email: string) => api.post<{ user: User }>('/api/auth/login', { email }),
+  login: (email: string) => api.post<{ user: User; message: string }>('/api/auth/login', { email }),
 };
 
 export const companiesApi = {
