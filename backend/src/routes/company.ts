@@ -3,25 +3,52 @@ import { prisma } from '../libs/prisma';
 
 const router = Router();
 
-// Basic CRUD operations for companies
-router.get('/', async (_req, res) => {
+// GET /api/companies
+router.get('/', async (req, res) => {
   try {
-    const companies = await prisma.company.findMany();
+    const companies = await prisma.company.findMany({
+      include: {
+        _count: {
+          select: {
+            users: true,
+            orders: true,
+          },
+        },
+      },
+    });
     res.json(companies);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+  } catch (error) {
+    console.error('Error fetching companies:', error);
+    res.status(500).json({ error: 'Failed to fetch companies' });
   }
 });
 
+// POST /api/companies
 router.post('/', async (req, res) => {
   try {
     const { name } = req.body;
-    const company = await prisma.company.create({
-      data: { name }
+
+    if (!name) {
+      return res.status(400).json({ error: 'Company name is required' });
+    }
+
+    // Check if company already exists
+    const existing = await prisma.company.findUnique({
+      where: { name },
     });
-    res.json(company);
-  } catch (error: any) {
-    res.status(500).json({ error: error.message });
+
+    if (existing) {
+      return res.status(400).json({ error: 'Company with this name already exists' });
+    }
+
+    const company = await prisma.company.create({
+      data: { name },
+    });
+
+    res.status(201).json(company);
+  } catch (error) {
+    console.error('Error creating company:', error);
+    res.status(500).json({ error: 'Failed to create company' });
   }
 });
 

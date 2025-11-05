@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
     
     const where: any = {};
     if (status && status !== 'all') {
-      where.deliveryStatus = status;
+      where.status = status;
     }
 
     const deliveries = await prisma.order.findMany({
@@ -58,8 +58,8 @@ router.get('/', async (req, res) => {
       order_id: delivery.code,
       vehicle_id: delivery.vehicle ? `v-${delivery.vehicle.id}` : null,
       plate_number: delivery.vehicle?.plateNo || 'N/A',
-      current_status: DeliveryStatusToMongolian[delivery.deliveryStatus],
-      current_status_enum: delivery.deliveryStatus,
+      current_status: DeliveryStatusToMongolian[delivery.status],
+      current_status_enum: delivery.status,
       origin: delivery.origin,
       destination: delivery.destination,
       last_updated: delivery.updatedAt,
@@ -109,8 +109,8 @@ router.get('/:id', async (req, res) => {
       order_id: delivery.code,
       vehicle_id: delivery.vehicle ? `v-${delivery.vehicle.id}` : null,
       plate_number: delivery.vehicle?.plateNo || 'N/A',
-      current_status: DeliveryStatusToMongolian[delivery.deliveryStatus],
-      current_status_enum: delivery.deliveryStatus,
+      current_status: DeliveryStatusToMongolian[delivery.status],
+      current_status_enum: delivery.status,
       origin: delivery.origin,
       destination: delivery.destination,
       last_updated: delivery.updatedAt,
@@ -141,7 +141,7 @@ router.patch('/:id/status', async (req, res) => {
     const delivery = await prisma.order.update({
       where: { id },
       data: {
-        deliveryStatus: new_status,
+        status: new_status,
         updatedAt: new Date()
       },
       include: {
@@ -155,8 +155,8 @@ router.patch('/:id/status', async (req, res) => {
       order_id: delivery.code,
       vehicle_id: delivery.vehicle ? `v-${delivery.vehicle.id}` : null,
       plate_number: delivery.vehicle?.plateNo || 'N/A',
-      current_status: DeliveryStatusToMongolian[delivery.deliveryStatus],
-      current_status_enum: delivery.deliveryStatus,
+      current_status: DeliveryStatusToMongolian[delivery.status],
+      current_status_enum: delivery.status,
       origin: delivery.origin,
       destination: delivery.destination,
       last_updated: delivery.updatedAt
