@@ -1,14 +1,72 @@
-import { Delivery, User, DeliveryStatusEnum } from '@/types/delivery';
+import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050';
 
-interface TelemetryResponse {
-  vehicleId: number;
-  vehicle?: {
-    device?: {
-      deviceId: string;
-    };
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Auth interceptor
+api.interceptors.request.use((config) => {
+  const userId = localStorage.getItem('userId');
+  if (userId) {
+    config.headers['x-user-id'] = userId;
+  }
+  return config;
+});
+
+// Types
+export interface User {
+  id: number;
+  email: string;
+  name: string;
+  role: 'ADMIN' | 'OPERATOR' | 'CLIENT_ADMIN';
+  companyId: number | null;
+  company?: Company;
+}
+
+export interface Company {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Vehicle {
+  id: number;
+  name: string;
+  plateNo: string;
+  deviceId: number;
+  device?: {
+    id: number;
+    deviceId: string;
   };
+}
+
+export interface Order {
+  id: number;
+  code: string;
+  companyId: number;
+  origin: string;
+  destination: string;
+  vehicleId: number | null;
+  status: 'PENDING' | 'ASSIGNED' | 'IN_TRANSIT' | 'DELIVERED' | 'CANCELLED';
+  createdById: number;
+  assignedToId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  company?: Company;
+  vehicle?: Vehicle;
+  createdBy?: User;
+  assignedTo?: User;
+}
+
+export interface LocationPing {
+  id: number;
+  vehicleId: number;
   lat: number;
   lng: number;
   speedKph?: number;
@@ -16,68 +74,29 @@ interface TelemetryResponse {
   at: string;
 }
 
-export const deliveryService = {
-  // Get all deliveries
-  async getDeliveries(): Promise<Delivery[]> {
-    const response = await fetch(`${API_BASE_URL}/deliveries`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch deliveries');
-    }
-    return response.json();
-  },
-
-  // Get a single delivery by ID
-  async getDelivery(id: string): Promise<Delivery> {
-    const response = await fetch(`${API_BASE_URL}/deliveries/${id}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch delivery');
-    }
-    return response.json();
-  },
-
-  // Update delivery status
-  async updateDeliveryStatus(id: string, newStatus: DeliveryStatusEnum): Promise<Delivery> {
-    const response = await fetch(`${API_BASE_URL}/deliveries/${id}/status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ new_status: newStatus }),
-    });
-    if (!response.ok) {
-      throw new Error('Failed to update delivery status');
-    }
-    return response.json();
-  },
+// API Methods
+export const authApi = {
+  login: (email: string) => api.post<{ user: User }>('/api/auth/login', { email }),
 };
 
-export const telemetryService = {
-  // Get latest telemetry data for all vehicles
-  async getLatestTelemetry(): Promise<TelemetryResponse[]> {
-    const response = await fetch(`${API_BASE_URL}/telemetry/latest`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch telemetry');
-    }
-    return response.json();
-  },
-
-  // Get telemetry for a specific vehicle
-  async getVehicleTelemetry(vehicleId: number): Promise<TelemetryResponse[]> {
-    const response = await fetch(`${API_BASE_URL}/telemetry/vehicle/${vehicleId}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch vehicle telemetry');
-    }
-    return response.json();
-  },
+export const companiesApi = {
+  getAll: () => api.get<Company[]>('/api/companies'),
 };
 
-// Mock user data for now
-export const userService = {
-  async getCurrentUser(): Promise<User> {
-    // In a real app, this would fetch from the API
-    return {
-      role: 'Admin',
-      username: 'Batchuluun',
-    };
-  },
+export const usersApi = {
+  getAll: () => api.get<User[]>('/api/users'),
 };
+
+export const vehiclesApi = {
+  getAll: () => api.get<Vehicle[]>('/api/vehicles'),
+  sendPing: (vehicleId: number, data: { lat: number; lng: number; speedKph?: number; heading?: number }) =>
+    api.post<LocationPing>(`/api/vehicles/${vehicleId}/ping`, data),
+};
+
+export const ordersApi = {
+  getAll: () => api.get<Order[]>('/api/orders'),
+  create: (data: { code: string; origin: string; destination: string; vehicleId?: number; companyId?: number }) =>
+    api.post<Order>('/api/orders', data),
+};
+
+export default api;
