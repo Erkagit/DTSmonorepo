@@ -50,7 +50,6 @@ export async function getById(req: Request, res: Response) {
       include: {
         vehicle: true,
         company: true,
-        histories: { orderBy: { at: 'asc' } }
       }
     });
     if (!order) return res.status(404).json({ error: 'Order not found' });
