@@ -5,19 +5,20 @@ const router = Router();
 
 // Хүргэлтийн статусын монгол хэл рүү хувиргах map
 const DeliveryStatusToMongolian: Record<string, string> = {
-  WAITING: 'Хүлээгдэж байна',
+  PENDING: 'Хүлээгдэж байна',
   LOADING: 'Ачилт хийгдэж байна',
-  TRANSIT_LOADING_CHINA_EXPORT: 'Шилжүүлэн ачилт хийгдэж байна - Хятадын экспорт гааль',
-  MONGOLIA_EXPORT_CUSTOMS: 'Монгол экспорт гааль',
-  MONGOLIA_IMPORT_CUSTOMS: 'Монгол импорт гааль',
+  TRANSFER_LOADING: 'Шилжүүлэн ачилт',
+  CN_EXPORT_CUSTOMS: 'Хятадын экспорт гааль',
+  MN_IMPORT_CUSTOMS: 'Монгол импорт гааль',
   IN_TRANSIT: 'Хүргэлт замдаа явж байна',
-  ARRIVED_AT_DESTINATION: 'Буулгах хаягт ирсэн',
+  ARRIVED_AT_SITE: 'Буулгах хаягт ирсэн',
   UNLOADED: 'Ачаа буусан',
-  RETURN_DELIVERY: 'Буцах хүргэлт',
-  MONGOLIA_EXPORT_RETURN: 'Монголын экпорт буцах',
-  CHINA_IMPORT: 'Хятадын импорт',
-  TRANSIT_LOADING: 'Шилжүүлэн ачилт',
+  RETURN_TRIP: 'Буцах хүргэлт',
+  MN_EXPORT_RETURN: 'Монголын экспорт буцах',
+  CN_IMPORT_RETURN: 'Хятадын импорт буцах',
+  TRANSFER: 'Шилжүүлэн ачилт',
   COMPLETED: 'Дуусгах',
+  CANCELLED: 'Цуцлагдсан'
 };
 
 /**
@@ -96,7 +97,7 @@ router.get('/:id', async (req, res) => {
         company: true,
         createdBy: true,
         assignedTo: true,
-        histories: true
+        statusHistory: true
       }
     });
 
