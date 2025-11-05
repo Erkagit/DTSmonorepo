@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { AuthProvider } from '@/components/AuthProvider';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
+import { Providers } from '@/components/Provider';
 
 export const metadata: Metadata = {
   title: 'DTS - Delivery Tracking Service',
@@ -18,9 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
-        </QueryClientProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
