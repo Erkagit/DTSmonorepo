@@ -117,15 +117,11 @@ export default function OrdersPage() {
     },
   });
 
-  const generateOrderCode = () => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const count = (orders?.length || 0) + 1;
-    return `DTS-${year}-${String(count).padStart(4, '0')}`;
-  };
-
-  const handleCreateClick = () => {
-    setFormData({ ...formData, code: generateOrderCode() });
+  const generateOrderCode = (count: number) => {
+    const year = new Date().getFullYear();
+    return `Achir Bayron LLC-${year}-${String(count).padStart(4, '0')}`;
+  };  const handleCreateClick = () => {
+    setFormData({ ...formData, code: generateOrderCode(orders?.length || 0) });
     setShowCreateForm(true);
   };
 

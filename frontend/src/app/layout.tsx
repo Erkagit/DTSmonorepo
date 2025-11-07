@@ -3,7 +3,7 @@ import './globals.css';
 import { Providers } from '@/context/Providers';
 
 export const metadata: Metadata = {
-  title: 'DTS - Delivery Tracking Service',
+  title: 'Achir Bayron LLC - Delivery Tracking Service',
   description: 'Real-time delivery tracking system',
 };
 

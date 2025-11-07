@@ -54,7 +54,7 @@ login(response.data.user, response.data.token);  // ✅ token дамжуулах
             <Truck className="w-12 h-12 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-sm text-gray-500 mt-2">Sign in to your DTS account</p>
+          <p className="text-sm text-gray-500 mt-2">Sign in to your Achir Bayron LLC account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
@@ -154,7 +154,7 @@ login(response.data.user, response.data.token);  // ✅ token дамжуулах
         {/* Powered by */}
         <div className="mt-4 text-center">
           <p className="text-xs text-gray-400">
-            Powered by DTS © 2025
+            Powered by Achir Bayron LLC © 2025
           </p>
         </div>
       </div>

@@ -23,7 +23,7 @@ export function CreateOrderModal({
           type="text"
           value={formData.code}
           onChange={(e) => onChange({ ...formData, code: e.target.value })}
-          placeholder="DTS-2025-0001"
+          placeholder="Achir Bayron LLC-2025-0001"
           required
         />
 
