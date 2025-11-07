@@ -151,6 +151,7 @@ export interface CreateUserModalProps {
 export interface CompanyCardProps {
   company: Company;
   onAddUser: (company: Company) => void;
+  onViewDetails: (company: Company) => void;
 }
 
 export interface CreateCompanyModalProps {

@@ -63,6 +63,10 @@ export const authApi = {
 
 export const companiesApi = {
   getAll: () => api.get<Company[]>('/api/companies'),
+  getById: (id: number) => api.get<Company & { 
+    users: User[]; 
+    orders: Order[];
+  }>(`/api/companies/${id}`),
 };
 
 export const usersApi = {

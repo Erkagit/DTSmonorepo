@@ -3,13 +3,18 @@ import { Card, CardHeader, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { CompanyCardProps } from '@/types/types';
 
-export function CompanyCard({ company, onAddUser }: CompanyCardProps) {
+export function CompanyCard({ company, onAddUser, onViewDetails }: CompanyCardProps) {
   return (
     <Card hover>
       <CardHeader>
-        <div className="flex items-start justify-between mb-4">
+        <div 
+          className="flex items-start justify-between mb-4 cursor-pointer"
+          onClick={() => onViewDetails(company)}
+        >
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-3">{company.name}</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-3 hover:text-purple-600 transition-colors">
+              {company.name}
+            </h3>
             <div className="space-y-2">
               {company._count && (
                 <>
@@ -33,7 +38,10 @@ export function CompanyCard({ company, onAddUser }: CompanyCardProps) {
 
       <CardFooter className="pt-4 border-t border-gray-100">
         <Button
-          onClick={() => onAddUser(company)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddUser(company);
+          }}
           variant="ghost"
           fullWidth
           icon={UserPlus}

@@ -8,7 +8,7 @@ import api from '@/services/api';
 import { Package, Building2, UserPlus, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthProvider';
 import { PageHeader, Button, EmptyState } from '@/components/ui';
-import { CreateCompanyModal, CreateUserModal, CompanyCard } from './components';
+import { CreateCompanyModal, CreateUserModal, CompanyCard, CompanyDetailsModal } from './components';
 
 export default function CompaniesPage() {
   const { user } = useAuth();
@@ -16,7 +16,9 @@ export default function CompaniesPage() {
   const queryClient = useQueryClient();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
+  const [selectedCompanyDetails, setSelectedCompanyDetails] = useState<any>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -88,6 +90,17 @@ export default function CompaniesPage() {
     setShowCreateUserModal(true);
   };
 
+  const handleViewDetails = async (company: any) => {
+    try {
+      const response = await companiesApi.getById(company.id);
+      setSelectedCompanyDetails(response.data);
+      setShowDetailsModal(true);
+    } catch (error: any) {
+      console.error('Error fetching company details:', error);
+      alert('Failed to load company details');
+    }
+  };
+
   const handleCloseUserModal = () => {
     setShowCreateUserModal(false);
     setSelectedCompany(null);
@@ -141,6 +154,12 @@ export default function CompaniesPage() {
         isLoading={createUserMutation.isPending}
       />
 
+      <CompanyDetailsModal
+        isOpen={showDetailsModal}
+        onClose={() => setShowDetailsModal(false)}
+        company={selectedCompanyDetails}
+      />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -155,6 +174,7 @@ export default function CompaniesPage() {
                 key={company.id}
                 company={company}
                 onAddUser={openCreateUserModal}
+                onViewDetails={handleViewDetails}
               />
             ))}
           </div>
