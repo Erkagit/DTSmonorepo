@@ -224,9 +224,11 @@ export default function OrdersPage() {
         title="Orders"
         subtitle="Delivery order management"
         action={
-          <Button icon={Plus} onClick={handleCreateClick}>
-            New Order
-          </Button>
+          user.role === 'ADMIN' ? (
+            <Button icon={Plus} onClick={handleCreateClick}>
+              New Order
+            </Button>
+          ) : undefined
         }
       />
 

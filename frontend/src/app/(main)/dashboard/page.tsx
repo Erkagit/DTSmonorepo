@@ -76,7 +76,7 @@ export default function DashboardPage() {
       link: '/orders',
       description: 'Active & completed orders',
     },
-    {
+    ...(user.role === 'ADMIN' ? [{
       label: 'Active Vehicles',
       value: vehicles?.length || 0,
       icon: Truck,
@@ -84,7 +84,7 @@ export default function DashboardPage() {
       loading: vehiclesLoading,
       link: '/vehicles',
       description: 'Fleet in operation',
-    },
+    }] : []),
     {
       label: 'In Transit',
       value: orders?.filter((o) => o.status === 'IN_TRANSIT').length || 0,
