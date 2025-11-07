@@ -23,6 +23,65 @@ router.get('/', async (req, res) => {
   }
 });
 
+// GET /api/companies/:id - Get company details with users and orders
+router.get('/:id', async (req, res) => {
+  try {
+    const companyId = parseInt(req.params.id);
+
+    if (isNaN(companyId)) {
+      return res.status(400).json({ error: 'Invalid company ID' });
+    }
+
+    const company = await prisma.company.findUnique({
+      where: { id: companyId },
+      include: {
+        users: {
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+        orders: {
+          include: {
+            vehicle: true,
+            createdBy: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        },
+        _count: {
+          select: {
+            users: true,
+            orders: true,
+          },
+        },
+      },
+    });
+
+    if (!company) {
+      return res.status(404).json({ error: 'Company not found' });
+    }
+
+    res.json(company);
+  } catch (error) {
+    console.error('Error fetching company details:', error);
+    res.status(500).json({ error: 'Failed to fetch company details' });
+  }
+});
+
 // POST /api/companies
 router.post('/', async (req, res) => {
   try {
