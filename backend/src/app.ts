@@ -48,7 +48,7 @@ app.post('/api/auth/login', async (req, res) => {
   try {
     console.log('🔐 LOGIN ATTEMPT');
     console.log('Request body:', req.body);
-    console.log('Email:', req.body?.email);
+    console.log('Email/Name:', req.body?.email);
     console.log('Password:', req.body?.password);
     
     const { email, password } = req.body;
@@ -60,8 +60,8 @@ app.post('/api/auth/login', async (req, res) => {
     }
     
     if (!email) {
-      console.log('❌ Email missing');
-      return res.status(400).json({ error: 'Email is required' });
+      console.log('❌ Email/Name missing');
+      return res.status(400).json({ error: 'Email or name is required' });
     }
     
     if (!password) {
@@ -69,16 +69,25 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(400).json({ error: 'Password is required' });
     }
     
-    console.log('✅ Email and password provided');
+    console.log('✅ Email/Name and password provided');
     
-    const user = await prisma.user.findUnique({ 
+    // Try to find user by email first, then by name
+    let user = await prisma.user.findUnique({ 
       where: { email },
       include: { company: true } 
     });
     
+    // If not found by email, try finding by name
     if (!user) {
-      console.log('❌ User not found');
-      return res.status(401).json({ error: 'Invalid email or password' });
+      user = await prisma.user.findFirst({
+        where: { name: email }, // using email field for name input
+        include: { company: true }
+      });
+    }
+    
+    if (!user) {
+      console.log('❌ User not found by email or name');
+      return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     console.log('✅ User found:', user.email);

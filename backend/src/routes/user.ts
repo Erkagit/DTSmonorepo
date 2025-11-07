@@ -92,7 +92,7 @@ router.post('/', requireRole(Role.ADMIN), async (req, res) => {
 router.put('/:id', requireRole(Role.ADMIN), async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
-    const { email, name, role, companyId } = req.body;
+    const { email, name, role, companyId, password } = req.body;
 
     // Check if user exists
     const existingUser = await prisma.user.findUnique({
@@ -130,6 +130,12 @@ router.put('/:id', requireRole(Role.ADMIN), async (req, res) => {
       });
     }
 
+    // Hash password if provided
+    let hashedPassword: string | undefined;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
     // Update user
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -137,7 +143,8 @@ router.put('/:id', requireRole(Role.ADMIN), async (req, res) => {
         ...(email && { email }),
         ...(name && { name }),
         ...(role && { role }),
-        ...(companyId !== undefined && { companyId: companyId || null })
+        ...(companyId !== undefined && { companyId: companyId || null }),
+        ...(hashedPassword && { password: hashedPassword })
       },
       include: {
         company: true
