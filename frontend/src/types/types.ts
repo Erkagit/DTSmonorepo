@@ -14,7 +14,7 @@ export interface Company {
   createdAt: string;
   updatedAt: string;
   _count?: {
-    users: number;
+    users: User[];
     orders: number;
   };
 }
@@ -61,7 +61,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   MN_EXPORT_RETURN: 'Монголын экспорт (буцах)',
   CN_IMPORT_RETURN: 'Хятадын импорт (буцах)',
   TRANSFER: 'Шилжүүлэн ачилт (дундах)',
-  COMPLETED: 'Дуусгах',
+  COMPLETED: 'Дууссан',
   CANCELLED: 'Цуцлагдсан',
 };
 

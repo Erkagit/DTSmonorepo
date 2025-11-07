@@ -5,23 +5,24 @@ import { useRouter } from 'next/navigation';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ordersApi, vehiclesApi, companiesApi } from '@/services/api';
-import { Truck, Package, Plus, ArrowLeft, MapPin, User, Calendar, X, RefreshCw } from 'lucide-react';
+import { Truck, Package, Plus, ArrowLeft, MapPin, User, Calendar, X, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS, type OrderStatus } from '@/types/types';
 import { useAuth } from '@/context/AuthProvider';
 import api from '@/services/api';
+import { CANCELLED } from 'dns';
 
 // Allowed status transitions
 const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  PENDING: ['LOADING', 'CANCELLED'],
-  LOADING: ['IN_TRANSIT', 'TRANSFER_LOADING', 'CANCELLED'],
-  TRANSFER_LOADING: ['IN_TRANSIT', 'CANCELLED'],
-  CN_EXPORT_CUSTOMS: ['IN_TRANSIT', 'CANCELLED'],
-  MN_IMPORT_CUSTOMS: ['IN_TRANSIT', 'CANCELLED'],
-  IN_TRANSIT: ['ARRIVED_AT_SITE', 'TRANSFER_LOADING', 'CANCELLED'],
-  ARRIVED_AT_SITE: ['UNLOADED'],
-  UNLOADED: ['COMPLETED', 'RETURN_TRIP'],
-  RETURN_TRIP: ['MN_EXPORT_RETURN', 'CN_IMPORT_RETURN', 'COMPLETED'],
+  PENDING: ['PENDING', 'CANCELLED'],
+  LOADING: ['LOADING', 'CANCELLED'],
+  TRANSFER_LOADING: ['TRANSFER_LOADING', 'CANCELLED'],
+  CN_EXPORT_CUSTOMS: ['CN_EXPORT_CUSTOMS', 'CANCELLED'],
+  MN_IMPORT_CUSTOMS: ['MN_IMPORT_CUSTOMS', 'CANCELLED'],
+  IN_TRANSIT: ['IN_TRANSIT', 'CANCELLED'],
+  ARRIVED_AT_SITE: ['ARRIVED_AT_SITE', 'CANCELLED'],
+  UNLOADED: ['UNLOADED', 'CANCELLED'],
+  RETURN_TRIP: ['RETURN_TRIP', 'COMPLETED'],
   MN_EXPORT_RETURN: ['CN_IMPORT_RETURN', 'COMPLETED'],
   CN_IMPORT_RETURN: ['COMPLETED'],
   TRANSFER: ['IN_TRANSIT', 'CANCELLED'],
@@ -148,6 +149,33 @@ export default function OrdersPage() {
     }
     // Can't update if already completed or cancelled
     return order.status !== 'COMPLETED' && order.status !== 'CANCELLED';
+  };
+
+  const getPreviousStatus = (currentStatus: OrderStatus): OrderStatus | null => {
+    // Find which status has currentStatus in its allowed transitions
+    const entries = Object.entries(ALLOWED_TRANSITIONS) as [OrderStatus, OrderStatus[]][];
+    for (const [prevStatus, allowedNext] of entries) {
+      if (allowedNext.includes(currentStatus)) {
+        return prevStatus;
+      }
+    }
+    return null;
+  };
+
+  const getNextStatus = (currentStatus: OrderStatus): OrderStatus | null => {
+    const allowedNext = ALLOWED_TRANSITIONS[currentStatus];
+    // Return the first allowed next status (primary progression path)
+    return allowedNext && allowedNext.length > 0 ? allowedNext[0] : null;
+  };
+
+  const handleQuickStatusUpdate = (order: any, newStatus: OrderStatus) => {
+    if (confirm(`Update order ${order.code} status to ${newStatus.replace(/_/g, ' ')}?`)) {
+      updateStatusMutation.mutate({
+        orderId: order.id,
+        status: newStatus,
+        note: undefined
+      });
+    }
   };
 
   if (!user) {
@@ -399,6 +427,30 @@ export default function OrdersPage() {
                     <Calendar className="w-3 h-3" />
                     <span>{new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                   </div>
+                  {canUpdateStatus(order) && (
+                    <div className="flex gap-2 mt-3">
+                      {getPreviousStatus(order.status as OrderStatus) && (
+                        <button
+                          onClick={() => handleQuickStatusUpdate(order, getPreviousStatus(order.status as OrderStatus)!)}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition border border-gray-300"
+                          title={`Go back to ${getPreviousStatus(order.status as OrderStatus)?.replace(/_/g, ' ')}`}
+                        >
+                          <ChevronLeft className="w-4 h-4" />
+                          <span className="text-sm font-medium">Prev</span>
+                        </button>
+                      )}
+                      {getNextStatus(order.status as OrderStatus) && (
+                        <button
+                          onClick={() => handleQuickStatusUpdate(order, getNextStatus(order.status as OrderStatus)!)}
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition border border-blue-200"
+                          title={`Move forward to ${getNextStatus(order.status as OrderStatus)?.replace(/_/g, ' ')}`}
+                        >
+                          <span className="text-sm font-medium">Next</span>
+                          <ChevronRight className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
