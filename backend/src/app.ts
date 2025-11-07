@@ -36,7 +36,7 @@ app.use((req, res, next) => {
 app.get('/health', (_req, res) => {
   res.json({ 
     ok: true, 
-    service: 'dts-backend', 
+    service: 'achir-bayron-llc-backend', 
     timestamp: new Date(),
     version: '1.0.0',
     jwt: 'enabled'

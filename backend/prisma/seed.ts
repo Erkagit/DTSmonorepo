@@ -97,7 +97,7 @@ async function main() {
   
   const order1 = await prisma.order.create({
     data: {
-      code: 'DTS-2025-0001',
+      code: 'Achir Bayron LLC-2025-0001',
       companyId: acme.id,
       origin: 'Ulaanbaatar',
       destination: 'Zamyn-Uud',
@@ -120,7 +120,7 @@ async function main() {
 
   const order2 = await prisma.order.create({
     data: {
-      code: 'DTS-2025-0002',
+      code: 'Achir Bayron LLC-2025-0002',
       companyId: erka.id,
       origin: 'Darkhan',
       destination: 'Erdenet',
