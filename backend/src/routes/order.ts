@@ -6,19 +6,23 @@ import { Role, OrderStatus } from '@prisma/client';
 const router = Router();
 
 // Allowed status transitions
+// Correct flow: PENDING → LOADING → TRANSFER_LOADING → CN_EXPORT_CUSTOMS → MN_IMPORT_CUSTOMS → 
+// IN_TRANSIT → ARRIVED_AT_SITE → UNLOADED → RETURN_TRIP → MN_EXPORT_RETURN → 
+// CN_IMPORT_RETURN → TRANSFER → COMPLETED
+// All statuses (except COMPLETED and CANCELLED) can transition to CANCELLED
 const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   PENDING: [OrderStatus.LOADING, OrderStatus.CANCELLED],
-  LOADING: [OrderStatus.IN_TRANSIT, OrderStatus.TRANSFER_LOADING, OrderStatus.CANCELLED],
-  TRANSFER_LOADING: [OrderStatus.IN_TRANSIT, OrderStatus.CANCELLED],
-  CN_EXPORT_CUSTOMS: [OrderStatus.IN_TRANSIT, OrderStatus.CANCELLED],
+  LOADING: [OrderStatus.TRANSFER_LOADING, OrderStatus.CANCELLED],
+  TRANSFER_LOADING: [OrderStatus.CN_EXPORT_CUSTOMS, OrderStatus.CANCELLED],
+  CN_EXPORT_CUSTOMS: [OrderStatus.MN_IMPORT_CUSTOMS, OrderStatus.CANCELLED],
   MN_IMPORT_CUSTOMS: [OrderStatus.IN_TRANSIT, OrderStatus.CANCELLED],
-  IN_TRANSIT: [OrderStatus.ARRIVED_AT_SITE, OrderStatus.TRANSFER_LOADING, OrderStatus.CANCELLED],
-  ARRIVED_AT_SITE: [OrderStatus.UNLOADED],
-  UNLOADED: [OrderStatus.COMPLETED, OrderStatus.RETURN_TRIP],
-  RETURN_TRIP: [OrderStatus.MN_EXPORT_RETURN, OrderStatus.CN_IMPORT_RETURN, OrderStatus.COMPLETED],
-  MN_EXPORT_RETURN: [OrderStatus.CN_IMPORT_RETURN, OrderStatus.COMPLETED],
-  CN_IMPORT_RETURN: [OrderStatus.COMPLETED],
-  TRANSFER: [OrderStatus.IN_TRANSIT, OrderStatus.CANCELLED],
+  IN_TRANSIT: [OrderStatus.ARRIVED_AT_SITE, OrderStatus.CANCELLED],
+  ARRIVED_AT_SITE: [OrderStatus.UNLOADED, OrderStatus.CANCELLED],
+  UNLOADED: [OrderStatus.RETURN_TRIP, OrderStatus.CANCELLED],
+  RETURN_TRIP: [OrderStatus.MN_EXPORT_RETURN, OrderStatus.CANCELLED],
+  MN_EXPORT_RETURN: [OrderStatus.CN_IMPORT_RETURN, OrderStatus.CANCELLED],
+  CN_IMPORT_RETURN: [OrderStatus.TRANSFER, OrderStatus.CANCELLED],
+  TRANSFER: [OrderStatus.COMPLETED, OrderStatus.CANCELLED],
   COMPLETED: [],
   CANCELLED: []
 };

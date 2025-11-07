@@ -59,19 +59,23 @@ export async function getById(req: Request, res: Response) {
   }
 }
 
+// Correct flow: PENDING → LOADING → TRANSFER_LOADING → CN_EXPORT_CUSTOMS → MN_IMPORT_CUSTOMS → 
+// IN_TRANSIT → ARRIVED_AT_SITE → UNLOADED → RETURN_TRIP → MN_EXPORT_RETURN → 
+// CN_IMPORT_RETURN → TRANSFER → COMPLETED
+// All statuses (except COMPLETED and CANCELLED) can transition to CANCELLED
 const ALLOWED: Record<OrderStatus, OrderStatus[]> = {
   [OrderStatus.PENDING]: [OrderStatus.LOADING, OrderStatus.CANCELLED],
-  [OrderStatus.LOADING]: [OrderStatus.IN_TRANSIT, OrderStatus.TRANSFER_LOADING, OrderStatus.CANCELLED],
-  [OrderStatus.TRANSFER_LOADING]: [OrderStatus.IN_TRANSIT, OrderStatus.CANCELLED],
-  [OrderStatus.CN_EXPORT_CUSTOMS]: [OrderStatus.IN_TRANSIT, OrderStatus.CANCELLED],
+  [OrderStatus.LOADING]: [OrderStatus.TRANSFER_LOADING, OrderStatus.CANCELLED],
+  [OrderStatus.TRANSFER_LOADING]: [OrderStatus.CN_EXPORT_CUSTOMS, OrderStatus.CANCELLED],
+  [OrderStatus.CN_EXPORT_CUSTOMS]: [OrderStatus.MN_IMPORT_CUSTOMS, OrderStatus.CANCELLED],
   [OrderStatus.MN_IMPORT_CUSTOMS]: [OrderStatus.IN_TRANSIT, OrderStatus.CANCELLED],
-  [OrderStatus.IN_TRANSIT]: [OrderStatus.ARRIVED_AT_SITE, OrderStatus.TRANSFER_LOADING, OrderStatus.CANCELLED],
-  [OrderStatus.ARRIVED_AT_SITE]: [OrderStatus.UNLOADED],
-  [OrderStatus.UNLOADED]: [OrderStatus.COMPLETED, OrderStatus.RETURN_TRIP],
-  [OrderStatus.RETURN_TRIP]: [OrderStatus.MN_EXPORT_RETURN, OrderStatus.CN_IMPORT_RETURN, OrderStatus.COMPLETED],
-  [OrderStatus.MN_EXPORT_RETURN]: [OrderStatus.CN_IMPORT_RETURN, OrderStatus.COMPLETED],
-  [OrderStatus.CN_IMPORT_RETURN]: [OrderStatus.COMPLETED],
-  [OrderStatus.TRANSFER]: [OrderStatus.IN_TRANSIT, OrderStatus.CANCELLED],
+  [OrderStatus.IN_TRANSIT]: [OrderStatus.ARRIVED_AT_SITE, OrderStatus.CANCELLED],
+  [OrderStatus.ARRIVED_AT_SITE]: [OrderStatus.UNLOADED, OrderStatus.CANCELLED],
+  [OrderStatus.UNLOADED]: [OrderStatus.RETURN_TRIP, OrderStatus.CANCELLED],
+  [OrderStatus.RETURN_TRIP]: [OrderStatus.MN_EXPORT_RETURN, OrderStatus.CANCELLED],
+  [OrderStatus.MN_EXPORT_RETURN]: [OrderStatus.CN_IMPORT_RETURN, OrderStatus.CANCELLED],
+  [OrderStatus.CN_IMPORT_RETURN]: [OrderStatus.TRANSFER, OrderStatus.CANCELLED],
+  [OrderStatus.TRANSFER]: [OrderStatus.COMPLETED, OrderStatus.CANCELLED],
   [OrderStatus.COMPLETED]: [],
   [OrderStatus.CANCELLED]: [],
 };
