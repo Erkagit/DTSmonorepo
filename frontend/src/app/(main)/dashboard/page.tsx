@@ -7,6 +7,7 @@ import { ordersApi, vehiclesApi, companiesApi } from '@/services/api';
 import { Package, Truck, MapPin, Building2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthProvider';
+import { PageHeader, StatCard, EmptyState } from '@/components/ui';
 
 export default function DashboardPage() {
   const { user, logout, isLoading: authLoading } = useAuth();
@@ -106,52 +107,19 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Truck className="w-8 h-8 text-blue-600" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-              <p className="text-sm text-gray-500">Delivery Tracking System Overview</p>
-            </div>
-          </div>
-        </div>
-      </header>
+      <PageHeader
+        icon={<Truck className="w-8 h-8 text-blue-600" />}
+        title="Dashboard"
+        subtitle="Delivery Tracking System Overview"
+      />
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
         <div className="mb-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Overview</h2>
           <div className={`grid grid-cols-1 md:grid-cols-2 ${user.role === 'ADMIN' ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6`}>
             {stats.map((stat) => (
-              <Link
-                key={stat.label}
-                href={stat.link}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer group"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-600 mb-1">{stat.label}</p>
-                    {stat.loading ? (
-                      <div className="h-10 w-20 bg-gray-200 animate-pulse rounded"></div>
-                    ) : (
-                      <p className="text-4xl font-bold text-gray-900">{stat.value}</p>
-                    )}
-                    <p className="text-xs text-gray-500 mt-2">{stat.description}</p>
-                  </div>
-                  <div className={`${stat.color} p-3 rounded-xl shadow-sm`}>
-                    <stat.icon className="w-6 h-6 text-white" />
-                  </div>
-                </div>
-                <div className="flex items-center text-sm text-blue-600 group-hover:text-blue-700 font-medium">
-                  View details
-                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </Link>
+              <StatCard key={stat.label} {...stat} />
             ))}
           </div>
         </div>
@@ -181,8 +149,9 @@ export default function DashboardPage() {
             ) : orders && orders.length > 0 ? (
               <div className="space-y-4">
                 {orders.slice(0, 5).map((order) => (
-                  <div
+                  <Link
                     key={order.id}
+                    href="/orders"
                     className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition"
                   >
                     <div className="flex-1">
@@ -214,21 +183,17 @@ export default function DashboardPage() {
                     >
                       {order.status.replace(/_/g, ' ')}
                     </span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8">
-                <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500 mb-4">No orders found</p>
-                <Link
-                  href="/orders"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                >
-                  <Package className="w-4 h-4" />
-                  Create First Order
-                </Link>
-              </div>
+              <EmptyState
+                icon={Package}
+                title="No orders found"
+                description="Create your first order to get started"
+                actionLabel="Create First Order"
+                onAction={() => {}}
+              />
             )}
           </div>
         </div>

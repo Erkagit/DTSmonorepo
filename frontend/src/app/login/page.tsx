@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { authApi } from '@/services/api';
-import { Truck, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { Truck, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/context/AuthProvider';
+import { Input, Button } from '@/components/ui';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -58,26 +59,19 @@ login(response.data.user, response.data.token);  // ✅ token дамжуулах
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Mail className="w-4 h-4 inline mr-1 text-gray-400" />
-              Email Address
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 transition"
-              placeholder="your.email@company.com"
-              required
-              autoFocus
-            />
-          </div>
+          <Input
+            label="Email Address"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="your.email@company.com"
+            required
+            autoFocus
+          />
 
           {/* Password */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Lock className="w-4 h-4 inline mr-1 text-gray-400" />
               Password
             </label>
             <div className="relative">
@@ -108,23 +102,24 @@ login(response.data.user, response.data.token);  // ✅ token дамжуулах
           )}
 
           {/* Submit Button */}
-          <button
+          <Button
             type="submit"
             disabled={loading}
-            className="w-full bg-linear-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+            fullWidth
+            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl"
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                 Signing in...
               </>
             ) : (
               <>
-                <Lock className="w-5 h-5" />
+                <Lock className="w-5 h-5 mr-2" />
                 Sign In
               </>
             )}
-          </button>
+          </Button>
         </form>
 
         {/* Test Credentials Info */}

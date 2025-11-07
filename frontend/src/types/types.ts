@@ -1,4 +1,7 @@
-// Backend API Types
+// ============================================
+// DOMAIN MODELS (Backend API Types)
+// ============================================
+
 export interface User {
   id: number;
   email: string;
@@ -6,6 +9,7 @@ export interface User {
   role: 'ADMIN' | 'CLIENT_ADMIN';
   companyId: number | null;
   company?: Company;
+  createdAt: string;
 }
 
 export interface Company {
@@ -25,12 +29,30 @@ export interface Vehicle {
   driverName: string;
   driverPhone: string;
   deviceId: number | null;
-  device?: {
-    id: number;
-    deviceId: string;
-  };
+  device?: Device;
   pings?: LocationPing[];
 }
+
+export interface Device {
+  id: number;
+  deviceId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LocationPing {
+  id: number;
+  vehicleId: number;
+  lat: number;
+  lng: number;
+  speedKph?: number;
+  heading?: number;
+  at: string;
+}
+
+// ============================================
+// ORDER TYPES & ENUMS
+// ============================================
 
 export type OrderStatus = 
   | 'PENDING'
@@ -100,19 +122,128 @@ export interface Order {
   assignedTo?: User;
 }
 
-export interface LocationPing {
-  id: number;
-  vehicleId: number;
-  lat: number;
-  lng: number;
-  speedKph?: number;
-  heading?: number;
-  at: string;
+// ============================================
+// COMPONENT PROPS INTERFACES
+// ============================================
+
+// User Components
+export interface UserTableProps {
+  users: User[];
 }
 
-export interface Device {
-  id: number;
-  deviceId: string;
-  createdAt: string;
-  updatedAt: string;
+export interface CreateUserModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  formData: {
+    email: string;
+    name: string;
+    password: string;
+    role: string;
+    companyId: string;
+  };
+  onChange: (data: any) => void;
+  companies: Array<{ id: number; name: string }>;
+  isLoading: boolean;
 }
+
+// Company Components
+export interface CompanyCardProps {
+  company: Company;
+  onAddUser: (company: Company) => void;
+}
+
+export interface CreateCompanyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  formData: { name: string };
+  onChange: (data: { name: string }) => void;
+  isLoading: boolean;
+}
+
+export interface CreateUserForCompanyModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  company: { id: number; name: string } | null;
+  formData: {
+    email: string;
+    name: string;
+    password: string;
+  };
+  onChange: (data: { email: string; name: string; password: string }) => void;
+  isLoading: boolean;
+}
+
+// Vehicle Components
+export interface VehicleCardProps {
+  vehicle: Vehicle;
+}
+
+export interface CreateVehicleModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  formData: {
+    plateNo: string;
+    driverName: string;
+    driverPhone: string;
+    deviceId: string;
+  };
+  onChange: (data: any) => void;
+  devices: any[];
+  isLoading: boolean;
+}
+
+export interface CreateDeviceModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  formData: {
+    deviceId: string;
+  };
+  onChange: (data: any) => void;
+  isLoading: boolean;
+}
+
+// Order Components
+export interface OrderCardProps {
+  order: Order;
+  canUpdate: boolean;
+  previousStatus: OrderStatus | null;
+  nextStatus: OrderStatus | null;
+  onQuickUpdate: (order: Order, status: OrderStatus) => void;
+}
+
+export interface CreateOrderModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  formData: {
+    code: string;
+    origin: string;
+    destination: string;
+    vehicleId: string;
+    companyId: string;
+  };
+  onChange: (data: any) => void;
+  vehicles: any[];
+  companies?: any[];
+  isAdmin: boolean;
+  isLoading: boolean;
+}
+
+export interface StatusUpdateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  order: any;
+  selectedStatus: OrderStatus | '';
+  onStatusChange: (status: OrderStatus | '') => void;
+  statusNote: string;
+  onNoteChange: (note: string) => void;
+  allowedTransitions: OrderStatus[];
+  isLoading: boolean;
+}
+
