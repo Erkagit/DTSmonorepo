@@ -27,6 +27,27 @@ export const ALLOWED_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 };
 
 /**
+ * Map of each status to its previous status in the main flow
+ * This provides a deterministic way to navigate backwards
+ */
+const STATUS_SEQUENCE_MAP: Record<OrderStatus, OrderStatus | null> = {
+  PENDING: null,
+  LOADING: 'PENDING',
+  TRANSFER_LOADING: 'LOADING',
+  CN_EXPORT_CUSTOMS: 'TRANSFER_LOADING',
+  MN_IMPORT_CUSTOMS: 'CN_EXPORT_CUSTOMS',
+  IN_TRANSIT: 'MN_IMPORT_CUSTOMS',
+  ARRIVED_AT_SITE: 'IN_TRANSIT',
+  UNLOADED: 'ARRIVED_AT_SITE',
+  RETURN_TRIP: 'UNLOADED',
+  MN_EXPORT_RETURN: 'RETURN_TRIP',
+  CN_IMPORT_RETURN: 'MN_EXPORT_RETURN',
+  TRANSFER: 'CN_IMPORT_RETURN',
+  COMPLETED: 'TRANSFER',
+  CANCELLED: null
+};
+
+/**
  * Get the next status in the progression path
  */
 export function getNextStatus(currentStatus: OrderStatus): OrderStatus | null {
@@ -38,21 +59,11 @@ export function getNextStatus(currentStatus: OrderStatus): OrderStatus | null {
 }
 
 /**
- * Get the previous status by finding which status has currentStatus in its allowed transitions
+ * Get the previous status by using the sequence map
+ * This ensures deterministic backwards navigation in the main flow
  */
 export function getPreviousStatus(currentStatus: OrderStatus): OrderStatus | null {
-  // Can't go back from PENDING, COMPLETED, or CANCELLED
-  if (currentStatus === 'PENDING' || currentStatus === 'COMPLETED' || currentStatus === 'CANCELLED') {
-    return null;
-  }
-  
-  const entries = Object.entries(ALLOWED_TRANSITIONS) as [OrderStatus, OrderStatus[]][];
-  for (const [prevStatus, allowedNext] of entries) {
-    if (allowedNext.includes(currentStatus)) {
-      return prevStatus;
-    }
-  }
-  return null;
+  return STATUS_SEQUENCE_MAP[currentStatus];
 }
 
 /**

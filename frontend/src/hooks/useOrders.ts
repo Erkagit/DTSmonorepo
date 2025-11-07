@@ -86,18 +86,6 @@ export function useOrders() {
     vehicles: vehiclesQuery.data,
     companies: companiesQuery.data,
     
-    // Query helpers
-    enableCompaniesQuery: () => {
-      return useQuery({
-        queryKey: ['companies'],
-        queryFn: async () => {
-          const res = await companiesApi.getAll();
-          return res.data;
-        },
-        enabled: true,
-      });
-    },
-    
     // Mutations
     createOrder: createOrderMutation.mutate,
     isCreatingOrder: createOrderMutation.isPending,

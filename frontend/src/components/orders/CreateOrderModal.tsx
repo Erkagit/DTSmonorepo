@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { Vehicle, Company } from '@/types/types';
 
 interface CreateOrderModalProps {
@@ -46,9 +46,11 @@ export function CreateOrderModal({
   });
 
   // Update code when initialOrderCode changes
-  if (formData.code !== initialOrderCode && formData.code === '') {
-    setFormData({ ...formData, code: initialOrderCode });
-  }
+  useEffect(() => {
+    if (initialOrderCode) {
+      setFormData(prev => ({ ...prev, code: initialOrderCode }));
+    }
+  }, [initialOrderCode]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
