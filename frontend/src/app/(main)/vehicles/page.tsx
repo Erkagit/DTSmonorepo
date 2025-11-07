@@ -8,7 +8,7 @@ import api from '@/services/api';
 import { Truck, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthProvider';
 import { PageHeader, Button, EmptyState } from '@/components/ui';
-import { CreateVehicleModal, CreateDeviceModal, VehicleCard } from './components';
+import { CreateVehicleModal, CreateDeviceModal, VehicleCard, EditVehicleModal, EditDeviceModal } from './components';
 
 export default function VehiclesPage() {
   const { user } = useAuth();
@@ -16,6 +16,10 @@ export default function VehiclesPage() {
   const queryClient = useQueryClient();
   const [showCreateVehicle, setShowCreateVehicle] = useState(false);
   const [showCreateDevice, setShowCreateDevice] = useState(false);
+  const [showEditVehicle, setShowEditVehicle] = useState(false);
+  const [showEditDevice, setShowEditDevice] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<any>(null);
+  const [editingDevice, setEditingDevice] = useState<any>(null);
   
   const [vehicleForm, setVehicleForm] = useState({
     plateNo: '',
@@ -24,7 +28,18 @@ export default function VehiclesPage() {
     deviceId: '',
   });
 
+  const [editVehicleForm, setEditVehicleForm] = useState({
+    plateNo: '',
+    driverName: '',
+    driverPhone: '',
+    deviceId: '',
+  });
+
   const [deviceForm, setDeviceForm] = useState({
+    deviceId: '',
+  });
+
+  const [editDeviceForm, setEditDeviceForm] = useState({
     deviceId: '',
   });
 
@@ -79,6 +94,69 @@ export default function VehiclesPage() {
     },
   });
 
+  const updateVehicleMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return api.put(`/api/vehicles/${id}`, {
+        plateNo: data.plateNo,
+        driverName: data.driverName,
+        driverPhone: data.driverPhone,
+        deviceId: data.deviceId ? parseInt(data.deviceId) : undefined,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+      setShowEditVehicle(false);
+      setEditingVehicle(null);
+      setEditVehicleForm({ plateNo: '', driverName: '', driverPhone: '', deviceId: '' });
+      alert('✅ Vehicle updated successfully!');
+    },
+    onError: (error: any) => {
+      alert('❌ ' + (error.response?.data?.error || 'Failed to update vehicle'));
+    },
+  });
+
+  const deleteVehicleMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return api.delete(`/api/vehicles/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+      alert('✅ Vehicle deleted successfully!');
+    },
+    onError: (error: any) => {
+      alert('❌ ' + (error.response?.data?.error || 'Failed to delete vehicle'));
+    },
+  });
+
+  const updateDeviceMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return api.put(`/api/devices/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devices'] });
+      setShowEditDevice(false);
+      setEditingDevice(null);
+      setEditDeviceForm({ deviceId: '' });
+      alert('✅ Device updated successfully!');
+    },
+    onError: (error: any) => {
+      alert('❌ ' + (error.response?.data?.error || 'Failed to update device'));
+    },
+  });
+
+  const deleteDeviceMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return api.delete(`/api/devices/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devices'] });
+      alert('✅ Device deleted successfully!');
+    },
+    onError: (error: any) => {
+      alert('❌ ' + (error.response?.data?.error || 'Failed to delete device'));
+    },
+  });
+
   const handleVehicleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createVehicleMutation.mutate(vehicleForm);
@@ -87,6 +165,29 @@ export default function VehiclesPage() {
   const handleDeviceSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createDeviceMutation.mutate(deviceForm);
+  };
+
+  const handleEditVehicle = (vehicle: any) => {
+    setEditingVehicle(vehicle);
+    setEditVehicleForm({
+      plateNo: vehicle.plateNo,
+      driverName: vehicle.driverName,
+      driverPhone: vehicle.driverPhone,
+      deviceId: vehicle.deviceId ? vehicle.deviceId.toString() : '',
+    });
+    setShowEditVehicle(true);
+  };
+
+  const handleUpdateVehicle = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingVehicle) return;
+    updateVehicleMutation.mutate({ id: editingVehicle.id, data: editVehicleForm });
+  };
+
+  const handleDeleteVehicle = (vehicle: any) => {
+    if (confirm(`Are you sure you want to delete vehicle "${vehicle.plateNo}"? This action cannot be undone.`)) {
+      deleteVehicleMutation.mutate(vehicle.id);
+    }
   };
 
   if (!user) {
@@ -141,6 +242,39 @@ export default function VehiclesPage() {
         isLoading={createDeviceMutation.isPending}
       />
 
+      <EditVehicleModal
+        isOpen={showEditVehicle}
+        onClose={() => {
+          setShowEditVehicle(false);
+          setEditingVehicle(null);
+          setEditVehicleForm({ plateNo: '', driverName: '', driverPhone: '', deviceId: '' });
+        }}
+        onSubmit={handleUpdateVehicle}
+        vehicle={editingVehicle}
+        formData={editVehicleForm}
+        onChange={setEditVehicleForm}
+        devices={devices || []}
+        isLoading={updateVehicleMutation.isPending}
+      />
+
+      <EditDeviceModal
+        isOpen={showEditDevice}
+        onClose={() => {
+          setShowEditDevice(false);
+          setEditingDevice(null);
+          setEditDeviceForm({ deviceId: '' });
+        }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!editingDevice) return;
+          updateDeviceMutation.mutate({ id: editingDevice.id, data: editDeviceForm });
+        }}
+        device={editingDevice}
+        formData={editDeviceForm}
+        onChange={setEditDeviceForm}
+        isLoading={updateDeviceMutation.isPending}
+      />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -151,7 +285,12 @@ export default function VehiclesPage() {
         ) : vehicles && vehicles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {vehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              <VehicleCard 
+                key={vehicle.id} 
+                vehicle={vehicle}
+                onEdit={handleEditVehicle}
+                onDelete={handleDeleteVehicle}
+              />
             ))}
           </div>
         ) : (

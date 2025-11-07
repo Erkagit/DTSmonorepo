@@ -1,8 +1,9 @@
-import { Truck, User, Phone, Activity } from 'lucide-react';
-import { Card, CardHeader } from '@/components/ui/Card';
+import { Truck, User, Phone, Activity, Edit2, Trash2 } from 'lucide-react';
+import { Card, CardHeader, CardFooter } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 import type { VehicleCardProps } from '@/types/types';
 
-export function VehicleCard({ vehicle }: VehicleCardProps) {
+export function VehicleCard({ vehicle, onEdit, onDelete }: VehicleCardProps) {
   return (
     <Card hover>
       <CardHeader>
@@ -42,6 +43,33 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
           </div>
         )}
       </CardHeader>
+
+      <CardFooter className="pt-4 border-t border-gray-100">
+        <div className="flex gap-2 w-full">
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(vehicle);
+            }}
+            variant="ghost"
+            icon={Edit2}
+            className="flex-1 bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+          >
+            Edit
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(vehicle);
+            }}
+            variant="ghost"
+            icon={Trash2}
+            className="flex-1 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+          >
+            Delete
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

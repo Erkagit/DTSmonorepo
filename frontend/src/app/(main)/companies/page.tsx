@@ -8,7 +8,7 @@ import api from '@/services/api';
 import { Package, Building2, UserPlus, Plus } from 'lucide-react';
 import { useAuth } from '@/context/AuthProvider';
 import { PageHeader, Button, EmptyState } from '@/components/ui';
-import { CreateCompanyModal, CreateUserModal, CompanyCard, CompanyDetailsModal } from './components';
+import { CreateCompanyModal, CreateUserModal, CompanyCard, CompanyDetailsModal, EditCompanyModal } from './components';
 
 export default function CompaniesPage() {
   const { user } = useAuth();
@@ -17,10 +17,16 @@ export default function CompaniesPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [selectedCompanyDetails, setSelectedCompanyDetails] = useState<any>(null);
+  const [editingCompany, setEditingCompany] = useState<any>(null);
   
   const [formData, setFormData] = useState({
+    name: '',
+  });
+
+  const [editFormData, setEditFormData] = useState({
     name: '',
   });
 
@@ -69,6 +75,35 @@ export default function CompaniesPage() {
     },
   });
 
+  const updateCompanyMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return companiesApi.update(id, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      setShowEditModal(false);
+      setEditingCompany(null);
+      setEditFormData({ name: '' });
+      alert('✅ Company updated successfully!');
+    },
+    onError: (error: any) => {
+      alert('❌ ' + (error.response?.data?.error || 'Failed to update company'));
+    },
+  });
+
+  const deleteCompanyMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return companiesApi.delete(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      alert('✅ Company deleted successfully!');
+    },
+    onError: (error: any) => {
+      alert('❌ ' + (error.response?.data?.error || 'Failed to delete company'));
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     createCompanyMutation.mutate(formData);
@@ -105,6 +140,24 @@ export default function CompaniesPage() {
     setShowCreateUserModal(false);
     setSelectedCompany(null);
     setUserFormData({ email: '', name: '', password: '' });
+  };
+
+  const handleEditCompany = (company: any) => {
+    setEditingCompany(company);
+    setEditFormData({ name: company.name });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateCompany = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCompany) return;
+    updateCompanyMutation.mutate({ id: editingCompany.id, data: editFormData });
+  };
+
+  const handleDeleteCompany = (company: any) => {
+    if (confirm(`Are you sure you want to delete "${company.name}"? This action cannot be undone.`)) {
+      deleteCompanyMutation.mutate(company.id);
+    }
   };
 
   if (!user) {
@@ -160,6 +213,20 @@ export default function CompaniesPage() {
         company={selectedCompanyDetails}
       />
 
+      <EditCompanyModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingCompany(null);
+          setEditFormData({ name: '' });
+        }}
+        onSubmit={handleUpdateCompany}
+        company={editingCompany}
+        formData={editFormData}
+        onChange={setEditFormData}
+        isLoading={updateCompanyMutation.isPending}
+      />
+
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -175,6 +242,8 @@ export default function CompaniesPage() {
                 company={company}
                 onAddUser={openCreateUserModal}
                 onViewDetails={handleViewDetails}
+                onEdit={handleEditCompany}
+                onDelete={handleDeleteCompany}
               />
             ))}
           </div>

@@ -6,3 +6,4 @@ export { Card, CardHeader, CardBody, CardFooter } from './Card';
 export { PageHeader } from './PageHeader';
 export { EmptyState } from './EmptyState';
 export { StatCard } from './StatCard';
+export { ConfirmModal } from './ConfirmModal';

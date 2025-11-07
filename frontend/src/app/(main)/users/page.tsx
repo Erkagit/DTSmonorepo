@@ -5,7 +5,7 @@ import { UserPlus } from 'lucide-react';
 import { useAuth } from '@/context/AuthProvider';
 import api from '@/services/api';
 import { PageHeader, Button } from '@/components/ui';
-import { CreateUserModal, UserTable } from './components';
+import { CreateUserModal, UserTable, EditUserModal } from './components';
 import type { User, Company } from '@/types/types';
 
 export default function UsersPage() {
@@ -15,10 +15,18 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     email: '',
     name: '',
     password: '',
+    role: 'CLIENT_ADMIN',
+    companyId: ''
+  });
+  const [editFormData, setEditFormData] = useState({
+    email: '',
+    name: '',
     role: 'CLIENT_ADMIN',
     companyId: ''
   });
@@ -75,6 +83,63 @@ export default function UsersPage() {
     }
   };
 
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    setEditFormData({
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      companyId: user.companyId ? user.companyId.toString() : ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    
+    setError('');
+    setSuccess('');
+    setSubmitting(true);
+
+    try {
+      const userData = {
+        email: editFormData.email,
+        name: editFormData.name,
+        role: editFormData.role,
+        companyId: editFormData.companyId ? parseInt(editFormData.companyId) : null
+      };
+
+      await api.put(`/api/users/${editingUser.id}`, userData);
+      setSuccess('User updated successfully!');
+      setShowEditModal(false);
+      setEditingUser(null);
+      setEditFormData({ email: '', name: '', role: 'CLIENT_ADMIN', companyId: '' });
+      fetchUsers();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to update user');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleDeleteUser = async (user: User) => {
+    if (!confirm(`Are you sure you want to delete user "${user.name}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    setError('');
+    setSuccess('');
+
+    try {
+      await api.delete(`/api/users/${user.id}`);
+      setSuccess('User deleted successfully!');
+      fetchUsers();
+    } catch (err: any) {
+      setError(err.response?.data?.error || 'Failed to delete user');
+    }
+  };
+
   if (currentUser?.role !== 'ADMIN') {
     return (
       <div className="p-8">
@@ -122,7 +187,11 @@ export default function UsersPage() {
             <p className="mt-4 text-gray-600">Loading users...</p>
           </div>
         ) : (
-          <UserTable users={users} />
+          <UserTable 
+            users={users} 
+            onEdit={handleEditUser}
+            onDelete={handleDeleteUser}
+          />
         )}
       </main>
 
@@ -136,6 +205,22 @@ export default function UsersPage() {
         onSubmit={handleCreateUser}
         formData={formData}
         onChange={setFormData}
+        companies={companies}
+        isLoading={submitting}
+      />
+
+      <EditUserModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingUser(null);
+          setEditFormData({ email: '', name: '', role: 'CLIENT_ADMIN', companyId: '' });
+          setError('');
+        }}
+        onSubmit={handleUpdateUser}
+        user={editingUser}
+        formData={editFormData}
+        onChange={setEditFormData}
         companies={companies}
         isLoading={submitting}
       />

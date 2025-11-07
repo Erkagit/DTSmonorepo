@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { User, Company, Vehicle, Order, LocationPing } from '@/types/types';
+import type { User, Company, Vehicle, Order, LocationPing, Device } from '@/types/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050';
 
@@ -67,22 +67,45 @@ export const companiesApi = {
     users: User[]; 
     orders: Order[];
   }>(`/api/companies/${id}`),
+  create: (data: { name: string }) => api.post<Company>('/api/companies', data),
+  update: (id: number, data: { name: string }) => api.put<Company>(`/api/companies/${id}`, data),
+  delete: (id: number) => api.delete(`/api/companies/${id}`),
 };
 
 export const usersApi = {
   getAll: () => api.get<User[]>('/api/users'),
+  create: (data: { email: string; name: string; password: string; role: string; companyId?: number }) =>
+    api.post<User>('/api/users', data),
+  update: (id: number, data: { email?: string; name?: string; role?: string; companyId?: number }) =>
+    api.put<User>(`/api/users/${id}`, data),
+  delete: (id: number) => api.delete(`/api/users/${id}`),
 };
 
 export const vehiclesApi = {
   getAll: () => api.get<Vehicle[]>('/api/vehicles'),
+  create: (data: { plateNo: string; driverName: string; driverPhone: string; deviceId?: number }) =>
+    api.post<Vehicle>('/api/vehicles', data),
+  update: (id: number, data: { plateNo?: string; driverName?: string; driverPhone?: string; deviceId?: number }) =>
+    api.put<Vehicle>(`/api/vehicles/${id}`, data),
+  delete: (id: number) => api.delete(`/api/vehicles/${id}`),
   sendPing: (vehicleId: number, data: { lat: number; lng: number; speedKph?: number; heading?: number }) =>
     api.post<LocationPing>(`/api/vehicles/${vehicleId}/ping`, data),
+};
+
+export const devicesApi = {
+  getAll: () => api.get<Device[]>('/api/devices'),
+  create: (data: { deviceId: string }) => api.post<Device>('/api/devices', data),
+  update: (id: number, data: { deviceId: string }) => api.put<Device>(`/api/devices/${id}`, data),
+  delete: (id: number) => api.delete(`/api/devices/${id}`),
 };
 
 export const ordersApi = {
   getAll: () => api.get<Order[]>('/api/orders'),
   create: (data: { code: string; origin: string; destination: string; vehicleId?: number; companyId?: number }) =>
     api.post<Order>('/api/orders', data),
+  update: (id: number, data: { code?: string; origin?: string; destination?: string; vehicleId?: number; status?: string }) =>
+    api.put<Order>(`/api/orders/${id}`, data),
+  delete: (id: number) => api.delete(`/api/orders/${id}`),
 };
 
 export default api;

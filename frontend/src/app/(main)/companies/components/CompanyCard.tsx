@@ -1,9 +1,9 @@
-import { Building2, Users as UsersIcon, Package, UserPlus } from 'lucide-react';
+import { Building2, Users as UsersIcon, Package, UserPlus, Edit2, Trash2 } from 'lucide-react';
 import { Card, CardHeader, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import type { CompanyCardProps } from '@/types/types';
 
-export function CompanyCard({ company, onAddUser, onViewDetails }: CompanyCardProps) {
+export function CompanyCard({ company, onAddUser, onViewDetails, onEdit, onDelete }: CompanyCardProps) {
   return (
     <Card hover>
       <CardHeader>
@@ -37,18 +37,43 @@ export function CompanyCard({ company, onAddUser, onViewDetails }: CompanyCardPr
       </CardHeader>
 
       <CardFooter className="pt-4 border-t border-gray-100">
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            onAddUser(company);
-          }}
-          variant="ghost"
-          fullWidth
-          icon={UserPlus}
-          className="bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200"
-        >
-          Add Client Admin
-        </Button>
+        <div className="flex gap-2 w-full">
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddUser(company);
+            }}
+            variant="ghost"
+            icon={UserPlus}
+            className="flex-1 bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200"
+          >
+            Add Client Admin
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(company);
+            }}
+            variant="ghost"
+            size="md"
+            icon={Edit2}
+            className="bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
+          >
+            Edit
+          </Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(company);
+            }}
+            variant="ghost"
+            size="md"
+            icon={Trash2}
+            className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
+          >
+            Delete
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

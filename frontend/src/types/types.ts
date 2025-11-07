@@ -129,6 +129,8 @@ export interface Order {
 // User Components
 export interface UserTableProps {
   users: User[];
+  onEdit: (user: User) => void;
+  onDelete: (user: User) => void;
 }
 
 export interface CreateUserModalProps {
@@ -152,6 +154,8 @@ export interface CompanyCardProps {
   company: Company;
   onAddUser: (company: Company) => void;
   onViewDetails: (company: Company) => void;
+  onEdit: (company: Company) => void;
+  onDelete: (company: Company) => void;
 }
 
 export interface CreateCompanyModalProps {
@@ -180,6 +184,8 @@ export interface CreateUserForCompanyModalProps {
 // Vehicle Components
 export interface VehicleCardProps {
   vehicle: Vehicle;
+  onEdit: (vehicle: Vehicle) => void;
+  onDelete: (vehicle: Vehicle) => void;
 }
 
 export interface CreateVehicleModalProps {
