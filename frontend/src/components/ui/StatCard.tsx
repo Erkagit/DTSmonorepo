@@ -4,7 +4,7 @@ import { LucideIcon, ArrowRight } from 'lucide-react';
 
 interface StatCardProps {
   label: string;
-  value: number;
+  value: number | string;
   icon: LucideIcon;
   color: string;
   loading?: boolean;
@@ -32,7 +32,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           {loading ? (
             <div className="h-10 w-20 bg-gray-200 animate-pulse rounded"></div>
           ) : (
-            <p className="text-4xl font-bold text-gray-900">{value}</p>
+            <p className="text-4xl font-bold text-gray-900 truncate">{value}</p>
           )}
           <p className="text-xs text-gray-500 mt-2">{description}</p>
         </div>

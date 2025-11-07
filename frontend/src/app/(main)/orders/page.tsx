@@ -40,6 +40,7 @@ export default function OrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [selectedStatus, setSelectedStatus] = useState<OrderStatus | ''>('');
   const [statusNote, setStatusNote] = useState('');
+  const [showCompleted, setShowCompleted] = useState(false);
   
   const [formData, setFormData] = useState({
     code: '',
@@ -53,6 +54,10 @@ export default function OrdersPage() {
     queryKey: ['orders'],
     queryFn: async () => {
       const res = await ordersApi.getAll();
+      // Filter orders for CLIENT_ADMIN - only show their company's orders
+      if (user?.role === 'CLIENT_ADMIN' && user.companyId) {
+        return res.data.filter((order: any) => order.companyId === user.companyId);
+      }
       return res.data;
     },
   });
@@ -203,6 +208,15 @@ export default function OrdersPage() {
     return null;
   }
 
+  // Separate active and completed orders
+  const activeOrders = orders?.filter(order => 
+    order.status !== 'COMPLETED' && order.status !== 'CANCELLED'
+  ) || [];
+  
+  const completedOrders = orders?.filter(order => 
+    order.status === 'COMPLETED' || order.status === 'CANCELLED'
+  ) || [];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <PageHeader
@@ -243,7 +257,7 @@ export default function OrdersPage() {
         />
       )}
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -251,18 +265,89 @@ export default function OrdersPage() {
             ))}
           </div>
         ) : orders && orders.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {orders.map((order: any) => (
-              <OrderCard
-                key={order.id}
-                order={order}
-                canUpdate={canUpdateStatus(order)}
-                previousStatus={getPreviousStatus(order.status as OrderStatus)}
-                nextStatus={getNextStatus(order.status as OrderStatus)}
-                onQuickUpdate={handleQuickStatusUpdate}
-              />
-            ))}
-          </div>
+          <>
+            {/* Active Orders Section */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Active Orders</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {activeOrders.length} order{activeOrders.length !== 1 ? 's' : ''} in progress
+                  </p>
+                </div>
+              </div>
+              
+              {activeOrders.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {activeOrders.map((order: any) => (
+                    <OrderCard
+                      key={order.id}
+                      order={order}
+                      canUpdate={canUpdateStatus(order)}
+                      previousStatus={getPreviousStatus(order.status as OrderStatus)}
+                      nextStatus={getNextStatus(order.status as OrderStatus)}
+                      onQuickUpdate={handleQuickStatusUpdate}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg border-2 border-dashed border-gray-200 p-8 text-center">
+                  <Package className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500">No active orders</p>
+                </div>
+              )}
+            </section>
+
+            {/* Completed Orders Section */}
+            <section>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Completed Orders</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {completedOrders.length} order{completedOrders.length !== 1 ? 's' : ''} finished
+                  </p>
+                </div>
+                {completedOrders.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowCompleted(!showCompleted)}
+                  >
+                    {showCompleted ? 'Hide' : 'Show'} Completed
+                  </Button>
+                )}
+              </div>
+              
+              {showCompleted && completedOrders.length > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-75">
+                  {completedOrders.map((order: any) => (
+                    <OrderCard
+                      key={order.id}
+                      order={order}
+                      canUpdate={false}
+                      previousStatus={null}
+                      nextStatus={null}
+                      onQuickUpdate={handleQuickStatusUpdate}
+                    />
+                  ))}
+                </div>
+              )}
+              
+              {!showCompleted && completedOrders.length > 0 && (
+                <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
+                  <p className="text-gray-600">
+                    {completedOrders.length} completed order{completedOrders.length !== 1 ? 's' : ''} hidden
+                  </p>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowCompleted(true)}
+                    className="mt-3"
+                  >
+                    Show Completed Orders
+                  </Button>
+                </div>
+              )}
+            </section>
+          </>
         ) : (
           <EmptyState
             icon={Package}

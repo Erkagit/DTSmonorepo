@@ -1,15 +1,22 @@
 import { Building2, Users as UsersIcon, Package, UserPlus, Edit2, Trash2 } from 'lucide-react';
 import { Card, CardHeader, CardFooter } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
+import { useRouter } from 'next/navigation';
 import type { CompanyCardProps } from '@/types/types';
 
 export function CompanyCard({ company, onAddUser, onViewDetails, onEdit, onDelete }: CompanyCardProps) {
+  const router = useRouter();
+
+  const handleCardClick = () => {
+    router.push(`/companies/${company.id}`);
+  };
+
   return (
     <Card hover>
       <CardHeader>
         <div 
           className="flex items-start justify-between mb-4 cursor-pointer"
-          onClick={() => onViewDetails(company)}
+          onClick={handleCardClick}
         >
           <div className="flex-1">
             <h3 className="text-xl font-bold text-gray-900 mb-3 hover:text-purple-600 transition-colors">

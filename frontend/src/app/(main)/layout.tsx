@@ -36,6 +36,9 @@ export default function MainLayout({
     { name: 'Vehicles', href: '/vehicles', icon: Truck, roles: ['ADMIN'] },
     { name: 'Companies', href: '/companies', icon: Building2, roles: ['ADMIN'] },
     { name: 'Users', href: '/users', icon: Users, roles: ['ADMIN'] },
+    ...(user?.role === 'CLIENT_ADMIN' && user.companyId ? [
+      { name: 'My Company', href: `/companies/${user.companyId}`, icon: Building2, roles: ['CLIENT_ADMIN'] }
+    ] : []),
   ];
 
   const filteredNavigation = navigation.filter(item => 

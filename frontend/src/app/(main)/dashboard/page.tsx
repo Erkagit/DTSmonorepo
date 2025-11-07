@@ -17,6 +17,10 @@ export default function DashboardPage() {
     queryKey: ['orders'],
     queryFn: async () => {
       const res = await ordersApi.getAll();
+      // Filter orders for CLIENT_ADMIN
+      if (user?.role === 'CLIENT_ADMIN' && user.companyId) {
+        return res.data.filter((o: any) => o.companyId === user.companyId);
+      }
       return res.data;
     },
     enabled: !!user,
@@ -102,6 +106,19 @@ export default function DashboardPage() {
       loading: companiesLoading,
       link: '/companies',
       description: 'Registered companies',
+    });
+  }
+
+  // Add My Company card for CLIENT_ADMIN users
+  if (user.role === 'CLIENT_ADMIN' && user.companyId) {
+    stats.push({
+      label: 'My Company',
+      value: 1,
+      icon: Building2,
+      color: 'bg-purple-500',
+      loading: false,
+      link: `/companies/${user.companyId}`,
+      description: 'View company details',
     });
   }
 
