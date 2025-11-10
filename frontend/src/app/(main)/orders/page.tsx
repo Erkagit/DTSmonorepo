@@ -270,7 +270,7 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <PageHeader
-        icon={<Package className="w-8 h-8 text-blue-600" />}
+        icon={<Package className="w-8 h-8 text-yellow-800" />}
         title="Захиалга"
         subtitle="Хүргэлтийн захиалга удирдлага"
         action={

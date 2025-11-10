@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { ordersApi, vehiclesApi, companiesApi } from '@/services/api';
-import { Package, Truck, Building2, ArrowRight, MapPin } from 'lucide-react';
+import { Package, Truck, Building2, ArrowRight, MapPin, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthProvider';
 import { PageHeader, StatCard, EmptyState } from '@/components/ui';
+import { GoogleMap, GoogleMapsLoader } from './components';
 
 export default function DashboardPage() {
   const { user, logout, isLoading: authLoading } = useAuth();
@@ -119,24 +120,69 @@ export default function DashboardPage() {
     });
   }
 
+  // Create map markers from active orders
+  const mapMarkers = useMemo(() => {
+    if (!orders) return [];
+    
+    // Mock coordinates for demonstration - in real app, these would come from order data
+    const activeOrders = orders.filter((order: any) => 
+      order.status === 'IN_TRANSIT' || order.status === 'LOADING'
+    );
+
+    return activeOrders.slice(0, 10).map((order: any, index: number) => ({
+      id: order.id,
+      position: {
+        // Random positions around Ulaanbaatar for demo
+        lat: 47.9184 + (Math.random() - 0.5) * 0.1,
+        lng: 106.9177 + (Math.random() - 0.5) * 0.1,
+      },
+      title: order.code,
+      description: `${order.origin} → ${order.destination}`,
+    }));
+  }, [orders]);
+
   return (
     <div className="min-h-screen bg-gray-50">
       <PageHeader
-        icon={<Truck className="w-8 h-8 text-blue-600" />}
+        icon={<LayoutDashboard className="w-8 h-8 text-gray-600" />}
         title="Хянах самбар"
         subtitle="Хүргэлтийн системийн ерөнхий мэдээлэл"
       />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+          {/* Google Map Section */}
+        <div className="mb-8 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+          <div className="p-6 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <MapPin className="w-6 h-6 text-blue-600" />
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Тээврийн хэрэгслийн байршил</h2>
+                <p className="text-sm text-gray-500 mt-1">Идэвхтэй захиалгуудын байршил</p>
+              </div>
+            </div>
+          </div>
+          <div className="h-[500px] p-4">
+            <GoogleMapsLoader>
+              <GoogleMap
+                center={{ lat: 47.9184, lng: 106.9177 }}
+                zoom={12}
+                markers={mapMarkers}
+              />
+            </GoogleMapsLoader>
+          </div>
+        </div>
+        
         {/* Stats Grid */}
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Тойм</h2>
-          <div className={`grid grid-cols-1 md:grid-cols-2 ${user.role === 'ADMIN' ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} gap-6`}>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {stats.map((stat) => (
               <StatCard key={stat.label} {...stat} />
             ))}
           </div>
         </div>
+
+      
 
         {/* Recent Orders */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200">

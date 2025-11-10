@@ -55,8 +55,8 @@ export function CompanyCard({ company, onAddUser, onViewDetails, onEdit, onDelet
             fullWidth
             className="bg-purple-50 text-purple-600 hover:bg-purple-100 border border-purple-200"
           >
-            <span className="hidden sm:inline">Харилцагчийн админ нэмэх</span>
-            <span className="sm:hidden">Админ нэмэх</span>
+            <span className="hidden sm:inline">User add</span>
+            <span className="sm:hidden">User add</span>
           </Button>
           <div className="flex gap-2 sm:flex-none">
             <Button
@@ -69,7 +69,7 @@ export function CompanyCard({ company, onAddUser, onViewDetails, onEdit, onDelet
               icon={Edit2}
               className="flex-1 sm:flex-none bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200"
             >
-              <span className="hidden sm:inline">Засах</span>
+              <span className="hidden sm:inline">Edit</span>
             </Button>
             <Button
               onClick={(e) => {
@@ -81,7 +81,7 @@ export function CompanyCard({ company, onAddUser, onViewDetails, onEdit, onDelet
               icon={Trash2}
               className="flex-1 sm:flex-none bg-red-50 text-red-600 hover:bg-red-100 border border-red-200"
             >
-              <span className="hidden sm:inline">Устгах</span>
+              <span className="hidden sm:inline">Delete</span>
             </Button>
           </div>
         </div>
