@@ -16,7 +16,7 @@ export function CreateOrderModal({
   isLoading,
 }: CreateOrderModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Шинэ захиалга үүсгэх">
+    <Modal isOpen={isOpen} onClose={onClose} title="Шинэ захиалга үүсгэх" maxWidth="md">
       <form onSubmit={onSubmit} className="space-y-4">
         <Input
           label="Захиалгын код"

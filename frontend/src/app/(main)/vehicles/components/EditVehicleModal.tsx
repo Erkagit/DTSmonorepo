@@ -33,7 +33,7 @@ export function EditVehicleModal({
   if (!vehicle) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit Vehicle">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Vehicle" maxWidth="md">
       <form onSubmit={onSubmit} className="space-y-4">
         <Input
           label="Plate Number"

@@ -6,14 +6,17 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 }
 
 const maxWidthClasses = {
-  sm: 'max-w-sm',
-  md: 'max-w-md',
-  lg: 'max-w-lg',
-  xl: 'max-w-xl',
+  sm: 'max-w-xs',
+  md: 'max-w-sm',
+  lg: 'max-w-md',
+  xl: 'max-w-lg',
+  '2xl': 'max-w-xl',
+  '3xl': 'max-w-2xl',
+  '4xl': 'max-w-3xl',
 };
 
 export function Modal({ isOpen, onClose, title, children, maxWidth = 'md' }: ModalProps) {

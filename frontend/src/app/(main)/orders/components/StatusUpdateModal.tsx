@@ -20,7 +20,7 @@ export function StatusUpdateModal({
   if (!order) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Update Order Status">
+    <Modal isOpen={isOpen} onClose={onClose} title="Update Order Status" maxWidth="md">
       <form onSubmit={onSubmit} className="space-y-4">
         <Input
           label="Order Code"

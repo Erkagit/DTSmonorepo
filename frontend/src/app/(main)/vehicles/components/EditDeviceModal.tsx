@@ -25,7 +25,7 @@ export function EditDeviceModal({
   if (!device) return null;
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit GPS Device">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit GPS Device" maxWidth="md">
       <form onSubmit={onSubmit} className="space-y-4">
         <Input
           label="Device ID"

@@ -12,7 +12,7 @@ export function CreateDeviceModal({
   isLoading,
 }: CreateDeviceModalProps) {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create New Device">
+    <Modal isOpen={isOpen} onClose={onClose} title="Create New Device" maxWidth="md">
       <form onSubmit={onSubmit} className="space-y-4">
         <Input
           label="Device ID"
